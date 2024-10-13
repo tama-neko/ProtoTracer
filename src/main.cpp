@@ -6,8 +6,8 @@
 
 //#include "Examples\Commissions\UnicornZhenjaAnimation.h"
 #include "Examples/Protogen/ProtogenHUB75SenseProject.h"
-// #include "memory"
-// #include "ProtoLink/ProtoLink.h"
+#include <memory>
+#include "ProtoLink/ProtoLink.h"
 //#include "Examples\Protogen\ProtogenWS35Project.h"
 //#include "Examples\VerifyEngine.h"
 
@@ -16,7 +16,7 @@
 //#include "../lib/ProtoTracer/Examples/Protogen/BetaProject.h"
 
 ProtogenHUB75SenseProject project;
-// std::unique_ptr<ProtoLink> pl;
+ProtoLink pl;
 
 
 void setup() {
@@ -25,7 +25,7 @@ void setup() {
     
     #ifndef TESTHARDWARE
     project.Initialize();
-    // pl = std::make_unique<ProtoLink>(&Serial1);
+    pl.Initialize(&Serial4);
     delay(100);
     #else
     while(true){
@@ -40,7 +40,8 @@ void setup() {
 void loop() {
     float ratio = (float)(millis() % 5000) / 5000.0f;
 
-    // pl->Update();
+    // Call update
+    pl.Update();
 
     project.Animate(ratio); 
 

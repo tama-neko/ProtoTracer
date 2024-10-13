@@ -1,143 +1,150 @@
-// #include "ProtoLink/ProtoLink.h"
+#include <ProtoLink/ProtoLink.h>
 
-// ProtoLink::ProtoLink(HardwareSerial* serial) : hwSerial_(serial) {
-//     hwSerial_->begin(115200);
+void ProtoLink::Initialize(HardwareSerial* serial) {
+    if (initialized_) return;
 
-//     // Initialize class variables to the menu's to have a reference to refer to for changes
-//     faceState = Menu::GetFaceState();
-//     bright = Menu::GetBrightness();
-//     accentBright = Menu::GetAccentBrightness();
-//     microphone = Menu::UseMicrophone();
-//     micLevel = Menu::GetMicLevel();
-//     boopSensor = Menu::UseBoopSensor();
-//     faceSize = Menu::GetFaceSize();
-//     color = Menu::GetFaceColor();
-//     huef = Menu::GetHueF();
-//     hueb = Menu::GetHueB();
-//     effect = Menu::GetEffectS();
-//     fanSpeed = Menu::GetFanSpeed();
-// }
+    hwSerial_ = serial;
+    hwSerial_->begin(115200);
 
-// void ProtoLink::Update() {
-//     if (IsSettingsChanged()) SyncProtoChanges();
+    // Initialize class variables to the menu's to have a reference to refer to for changes
+    faceState = Menu::GetFaceState();
+    bright = Menu::GetBrightness();
+    accentBright = Menu::GetAccentBrightness();
+    microphone = Menu::UseMicrophone();
+    micLevel = Menu::GetMicLevel();
+    boopSensor = Menu::UseBoopSensor();
+    faceSize = Menu::GetFaceSize();
+    color = Menu::GetFaceColor();
+    huef = Menu::GetHueF();
+    hueb = Menu::GetHueB();
+    effect = Menu::GetEffectS();
+    fanSpeed = Menu::GetFanSpeed();
 
-//     if (hwSerial_->available()) {
-//         DeserializationError err = deserializeJson(inDoc_, *hwSerial_);
+    initialized_ = true;
+}
 
-//         if (err = DeserializationError::Ok) {
-//             UpdateSettings();
-//         } else {
-//             // Flush bytes
-//             while (hwSerial_->available() > 0) {
-//                 hwSerial_->read();
-//             }
-//         }
-//     }
-// }
+void ProtoLink::Update() {
+    if (!initialized_) return;
 
-// void ProtoLink::UpdateSettings() {
-//     uint8_t inFaceState = inDoc_["faceState"].as<uint8_t>();
-//     if (inFaceState != Menu::GetFaceState()) Menu::SetFaceState(inFaceState);
-//     faceState = inFaceState;
+    if (IsSettingsChanged()) SyncProtoChanges();
 
-//     uint8_t inBrightness = inDoc_["brightness"].as<uint8_t>();
-//     if (inBrightness != Menu::GetBrightness()) Menu::SetBrightness(inBrightness);
-//     bright = inBrightness;
+    if (hwSerial_->available()) {
+        DeserializationError err = deserializeJson(inDoc_, *hwSerial_);
 
-//     uint8_t inAccentBrightness = inDoc_["accentBrightness"].as<uint8_t>();
-//     if (inAccentBrightness != Menu::GetAccentBrightness()) Menu::SetAccentBrightness(inAccentBrightness);
-//     accentBright = inAccentBrightness;
+        if (err == DeserializationError::Ok) {
+            UpdateSettings();
+        } else {
+            // Flush bytes
+            while (hwSerial_->available() > 0) {
+                hwSerial_->read();
+            }
+        }
+    }
+}
 
-//     uint8_t inUseMicrophone = inDoc_["useMicrophone"].as<uint8_t>();
-//     if (inUseMicrophone != Menu::UseMicrophone()) Menu::SetUseMicrophone(inUseMicrophone);
-//     microphone = inUseMicrophone;
+void ProtoLink::UpdateSettings() {
+    uint8_t inFaceState = inDoc_["faceState"].as<uint8_t>();
+    if (inFaceState != Menu::GetFaceState()) Menu::SetFaceState(inFaceState);
+    faceState = inFaceState;
 
-//     uint8_t inMicLevel = inDoc_["micLevel"].as<uint8_t>();
-//     if (inMicLevel != Menu::GetMicLevel()) Menu::SetMicLevel(isMicLevel);
-//     micLevel = inMicLevel;
+    uint8_t inBrightness = inDoc_["brightness"].as<uint8_t>();
+    if (inBrightness != Menu::GetBrightness()) Menu::SetBrightness(inBrightness);
+    bright = inBrightness;
 
-//     uint8_t inUseBoopSensor = inDoc_["useBoopSensor"].as<uint8_t>();
-//     if (inUseBoopSensor != Menu::UseBoopSensor()) Menu::SetUseBoopSensor(inUseBoopSensor);
-//     boopSensor = inUseBoopSensor;
+    uint8_t inAccentBrightness = inDoc_["accentBrightness"].as<uint8_t>();
+    if (inAccentBrightness != Menu::GetAccentBrightness()) Menu::SetAccentBrightness(inAccentBrightness);
+    accentBright = inAccentBrightness;
 
-//     uint8_t inFaceSize = inDoc_["faceSize"].as<uint8_t>();
-//     if (inFaceSize != Menu::GetFaceSize()) Menu::SetFaceSize(inFaceSize);
-//     faceSize = inFaceSize;
+    uint8_t inUseMicrophone = inDoc_["useMicrophone"].as<uint8_t>();
+    if (inUseMicrophone != Menu::UseMicrophone()) Menu::SetUseMicrophone(inUseMicrophone);
+    microphone = inUseMicrophone;
 
-//     uint8_t inFaceColor = inDoc_["faceColor"].as<uint8_t>();
-//     if (inFaceColor != Menu::GetFaceColor()) Menu::SetFaceColor(inFaceColor);
-//     color = inFaceColor;
+    uint8_t inMicLevel = inDoc_["micLevel"].as<uint8_t>();
+    if (inMicLevel != Menu::GetMicLevel()) Menu::SetMicLevel(inMicLevel);
+    micLevel = inMicLevel;
 
-//     uint8_t inHueF = inDoc_["hueF"].as<uint8_t>();
-//     if (inHueF != Menu::GetHueF()) Menu::SetHueF(inHueF);
-//     huef = inHueF;
+    uint8_t inUseBoopSensor = inDoc_["useBoopSensor"].as<uint8_t>();
+    if (inUseBoopSensor != Menu::UseBoopSensor()) Menu::SetUseBoopSensor(inUseBoopSensor);
+    boopSensor = inUseBoopSensor;
 
-//     uint8_t inHueB = inDoc_["hueB"].as<uint8_t>();
-//     if (inHueB != Menu::GetHueB()) Menu::SetHueB(inHueB);
-//     hueB = inHueB;
+    uint8_t inFaceSize = inDoc_["faceSize"].as<uint8_t>();
+    if (inFaceSize != Menu::GetFaceSize()) Menu::SetFaceSize(inFaceSize);
+    faceSize = inFaceSize;
 
-//     uint8_t inEffectS = inDoc_["effectS"].as<uint8_t>();
-//     if (inEffectS != Menu::GetEffectS()) Menu::SetEffectS(inEffectS);
-//     effect = inEffectS;
+    uint8_t inFaceColor = inDoc_["faceColor"].as<uint8_t>();
+    if (inFaceColor != Menu::GetFaceColor()) Menu::SetFaceColor(inFaceColor);
+    color = inFaceColor;
 
-//     uint8_t inFanSpeed = inDoc_["fanSpeed"].as<uint8_t>();
-//     if (inFanSpeed != Menu::GetFanSpeed()) Menu::SetFanSpeed(inFanSpeed);
-//     fanSpeed = inFanSpeed;
-// }
+    uint8_t inHueF = inDoc_["hueF"].as<uint8_t>();
+    if (inHueF != Menu::GetHueF()) Menu::SetHueF(inHueF);
+    huef = inHueF;
 
-// void ProtoLink::SyncProtoChanges() {
-//     faceState = Menu::GetFaceState();
-//     outDoc_["faceState"] = faceSize;
+    uint8_t inHueB = inDoc_["hueB"].as<uint8_t>();
+    if (inHueB != Menu::GetHueB()) Menu::SetHueB(inHueB);
+    hueb = inHueB;
 
-//     bright = Menu::GetBrightness();
-//     outDoc_["brightness"] = bright;
+    uint8_t inEffectS = inDoc_["effectS"].as<uint8_t>();
+    if (inEffectS != Menu::GetEffectS()) Menu::SetEffectS(inEffectS);
+    effect = inEffectS;
 
-//     accentBright = Menu::GetAccentBrightness();
-//     outDoc_["accentBrightness"] = accentBright;
+    uint8_t inFanSpeed = inDoc_["fanSpeed"].as<uint8_t>();
+    if (inFanSpeed != Menu::GetFanSpeed()) Menu::SetFanSpeed(inFanSpeed);
+    fanSpeed = inFanSpeed;
+}
 
-//     microphone = Menu::UseMicrophone();
-//     outDoc_["useMicrophone"] = microphone;
+void ProtoLink::SyncProtoChanges() {
+    faceState = Menu::GetFaceState();
+    outDoc_["faceState"] = faceSize;
 
-//     micLevel = Menu::GetMicLevel();
-//     outDoc_["micLevel"] = micLevel;
+    bright = Menu::GetBrightness();
+    outDoc_["brightness"] = bright;
 
-//     boopSensor = Menu::UseBoopSensor();
-//     outDoc_["useBoopSensor"] = boopSensor;
+    accentBright = Menu::GetAccentBrightness();
+    outDoc_["accentBrightness"] = accentBright;
 
-//     faceSize = Menu::GetFaceSize();
-//     outDoc_["faceSize"] = faceSize;
+    microphone = Menu::UseMicrophone();
+    outDoc_["useMicrophone"] = microphone;
 
-//     color = Menu::GetFaceColor();
-//     outDoc_["faceColor"] = color;
+    micLevel = Menu::GetMicLevel();
+    outDoc_["micLevel"] = micLevel;
 
-//     huef = Menu::GetHueF();
-//     outDoc_["hueF"] = huef;
+    boopSensor = Menu::UseBoopSensor();
+    outDoc_["useBoopSensor"] = boopSensor;
 
-//     hueb = Menu::GetHueB();
-//     outDoc_["hueb"] = hueb;
+    faceSize = Menu::GetFaceSize();
+    outDoc_["faceSize"] = faceSize;
 
-//     effect = Menu::GetEffectS();
-//     outDoc_["effectS"] = effect;
+    color = Menu::GetFaceColor();
+    outDoc_["faceColor"] = color;
 
-//     fanSpeed = Menu::GetFanSpeed();
-//     outDoc_["fanSpeed"] = fanSpeed;
+    huef = Menu::GetHueF();
+    outDoc_["hueF"] = huef;
 
-//     serializeJson(outDoc_, *hwSerial_);
-// }
+    hueb = Menu::GetHueB();
+    outDoc_["hueb"] = hueb;
 
-// bool ProtoLink::IsSettingsChanged() {
-//     return (    
-//         faceState != Menu::GetFaceState() &&
-//         bright != Menu::GetBrightness() &&
-//         accentBright != Menu::GetAccentBrightness() &&
-//         microphone != Menu::UseMicrophone() &&
-//         micLevel != Menu::GetMicLevel() &&
-//         boopSensor != Menu::UseBoopSensor() &&
-//         faceSize != Menu::GetFaceSize() &&
-//         color != Menu::GetFaceColor() &&
-//         huef != Menu::GetHueF() &&
-//         hueb != Menu::GetHueB() &&
-//         effect != Menu::GetEffectS() &&
-//         fanSpeed != Menu::GetFanSpeed()
-//     );
-// }
+    effect = Menu::GetEffectS();
+    outDoc_["effectS"] = effect;
+
+    fanSpeed = Menu::GetFanSpeed();
+    outDoc_["fanSpeed"] = fanSpeed;
+
+    serializeJson(outDoc_, *hwSerial_);
+}
+
+bool ProtoLink::IsSettingsChanged() {
+    return (    
+        faceState != Menu::GetFaceState() &&
+        bright != Menu::GetBrightness() &&
+        accentBright != Menu::GetAccentBrightness() &&
+        microphone != Menu::UseMicrophone() &&
+        micLevel != Menu::GetMicLevel() &&
+        boopSensor != Menu::UseBoopSensor() &&
+        faceSize != Menu::GetFaceSize() &&
+        color != Menu::GetFaceColor() &&
+        huef != Menu::GetHueF() &&
+        hueb != Menu::GetHueB() &&
+        effect != Menu::GetEffectS() &&
+        fanSpeed != Menu::GetFanSpeed()
+    );
+}
